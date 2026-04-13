@@ -6,19 +6,6 @@ def get_pdf(mean, var, x_array):
     return np.exp(-((x_array - mean) ** 2) / (2 * var)) / np.sqrt(2 * np.pi * var)
 
 
-def get_empirical_pdf(xn, bins, step):
-    counts = np.zeros(len(bins) - 1)
-
-    for value in xn:
-        for i in range(len(bins) - 1):
-            if bins[i] <= value < bins[i + 1]:
-                counts[i] += 1
-                break
-
-    empirical_pdf = counts / (len(xn) * step)
-    return empirical_pdf
-
-
 # Task 1
 mean_0 = 0
 mean_m1 = -1
