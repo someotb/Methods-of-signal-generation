@@ -1,5 +1,3 @@
-from cProfile import label
-
 import numpy as np
 from matplotlib import pyplot as plt
 
