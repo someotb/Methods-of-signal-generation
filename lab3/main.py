@@ -1,5 +1,4 @@
 from cProfile import label
-from multiprocessing import allow_connection_pickling
 
 import numpy as np
 from matplotlib import pyplot as plt
@@ -63,5 +62,45 @@ plt.scatter(t, xn_1, s=1, color="r", label=f"mx = {mean_0}, s = {s1}")
 plt.scatter(t, xn_3, s=1, color="b", label=f"mx = {mean_0}, s = {s3}")
 plt.scatter(t, xn_02, s=1, color="y", label=f"mx = {mean_0}, s = {s02}")
 plt.legend()
+
+# Task 3
+mx = 0
+var = 3
+s = np.sqrt(var)
+
+data = np.random.normal(loc=mx, scale=s, size=10000)
+
+step = 0.2  # Ширина одного ящика(bin)
+bins_edges = np.arange(-6, 6 + step, step)
+bins_centers = bins_edges[:-1] + step / 2
+bins_counters = np.zeros_like(bins_centers)
+
+for x in data:
+    for e in range(len(bins_edges) - 1):
+        if bins_edges[e] <= x < bins_edges[e + 1]:
+            bins_counters[e] += 1
+            break
+
+norm_var = len(data) * step
+bins_counters /= norm_var
+
+plt.figure(3, label="Гистаграмма распрелеления")
+plt.title(f"Гистаграмма распрелеления[mx = {mx}, var = {var}]")
+plt.plot(bins_centers, bins_counters)
+
+# Task 4
+emp_mx = np.sum(data) / len(data)
+emp_var = np.sum(data**2) / len(data) - emp_mx**2
+print("По исходным данным")
+print(f"Set mx: {mx} | Get mx: {emp_mx}")
+print(f"Set var: {var} | Get var: {emp_var}")
+
+# Task 5
+m_x = np.sum(bins_centers * bins_counters * step)
+va_r = np.sum((bins_centers**2) * bins_counters * step) - m_x**2
+
+print("По гистаграмме распрелеления")
+print(f"Set mx: {mx} | Get mx: {m_x}")
+print(f"Set var: {var} | Get var: {va_r}")
 
 plt.show()
