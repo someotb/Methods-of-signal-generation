@@ -65,7 +65,7 @@ for am in Am:
 
 # Task 3
 print("Task 3")
-var = 1.1
+var = 1.5
 S1 = 1
 S2 = -S1
 bits = np.random.randint(0, 2, 10)
