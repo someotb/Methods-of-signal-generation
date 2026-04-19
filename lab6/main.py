@@ -1,6 +1,3 @@
-from cProfile import label
-from tkinter import Label
-
 import numpy as np
 from matplotlib import pyplot as plt
 
