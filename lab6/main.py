@@ -1,3 +1,6 @@
+from cProfile import label
+from tkinter import Label
+
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -102,5 +105,55 @@ plt.plot(bits + 0.2, label="TX (Отправленные)", linewidth=2)
 plt.plot(decision_bits_srav + 0.1, label="RX сравнение", linestyle="--")
 plt.plot(decision_bits_otnosh, label="RX правдоподобие", linestyle=":")
 plt.legend()
+
+# Task 4
+print("\nTask 4")
+cnt_err = 0
+for i in range(len(decision_bits_otnosh)):
+    if decision_bits_otnosh[i] != bits[i]:
+        cnt_err += 1
+
+BER = cnt_err / len(bits)
+print(f"BER: {BER}")
+
+# Task 5
+Lambda_list = []
+S1 = np.array([0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.5, 3, 3.5])
+S2 = np.array([-i for i in S1])
+BER_list = np.array([])
+
+for s in range(len(S1)):
+    err_cnt = 0
+    dem_bits_t5 = np.zeros_like(bits)
+    noise = np.random.normal(0, var, size=len(bits))
+    ns_sym = symbols + noise
+    for i in range(len(ns_sym)):
+        w1 = get_w(ns_sym[i], S1[s])
+        w2 = get_w(ns_sym[i], S2[s])
+
+        Lambda = w1 / w2
+        Lambda_list.append(Lambda)
+
+        if Lambda > 1:
+            dem_bits_t5[i] = 1
+        elif Lambda < 1:
+            dem_bits_t5[i] = 0
+        else:
+            dem_bits_t5[i] = np.random.choice([0, 1])
+
+    for b in range(len(dem_bits_t5)):
+        if dem_bits_t5[b] != bits[b]:
+            err_cnt += 1
+
+    BER = err_cnt / len(bits)
+    BER_list = np.append(BER_list, BER)
+
+plt.figure(2, label="BER от Sn")
+plt.plot(
+    S1,
+    BER_list,
+)
+plt.xlabel("S(n)")
+plt.ylabel("BER")
 
 plt.show()
