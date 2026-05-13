@@ -1,6 +1,6 @@
 import numpy as np
 from matplotlib import pyplot as plt
-import pandas as pd
+from scipy.linalg import convolution_matrix, inv
 
 def base_signal_output(signal:complex, label:str):
     plt.figure(figsize=(8,8), label=label)
@@ -9,11 +9,6 @@ def base_signal_output(signal:complex, label:str):
     plt.plot(signal.imag, label="Q")
     plt.subplot(2,1,2)
     plt.scatter(signal.real, signal.imag, label="I/Q")
-
-def akf(ts, lag):
-    series = pd.Series(ts)
-    return series.autocorr(lag=lag)
-
 
 def modulator(mod_type:str, bits):
     match mod_type:
@@ -56,21 +51,30 @@ SNR = 18
 ones = np.ones(10)
 h = [0.19 + 1j * 0.56, 0.45 - 1j * 1.28, -0.14 - 1j * 0.53]
 tr = [0,1,0,0,0,1,1,1,1,0,1,1,0,1,0,0,0,1,0,0,0,1,1,1,1,0]
+offset = (len(tr) - 16) // 2
+tr_central = tr[offset : len(tr) - offset]
 bits = np.random.randint(0, 2, 1000)
 symbols = modulator("QPSK", bits)
 conv_symb = np.convolve(symbols, 1, mode="same")
 n_symb = white_noise(conv_symb, SNR)
 rec_symb = np.convolve(n_symb, h[0:3], mode="same")
-tr_bpsk = modulator("BPSK", tr)
-akf_tr_bpsk = akf(tr_bpsk, 1)
+tr_bpsk = modulator("BPSK", tr_central)
+akf_tr_bpsk = np.correlate(tr_bpsk, tr_bpsk, mode="same")
+M = convolution_matrix(tr_central, len(tr_central))
+hLS = inv(np.conj(M.T) @ M) @ np.conj(M.T) @ tr_bpsk
 
-# base_signal_output(symbols, "Symbols")
-# base_signal_output(n_symb, "Noisy Symbols")
-# plt.figure(label="ИХ")
-# plt.plot([h[i].real for i in range(len(h))])
-# base_signal_output(rec_symb, "Rec Symbols")
+print(h)
+print(hLS)
+
+base_signal_output(symbols, "Symbols")
+base_signal_output(n_symb, "Noisy Symbols")
+plt.figure(label="ИХ")
+plt.stem([h[i].real for i in range(len(h))])
+base_signal_output(rec_symb, "Rec Symbols")
 base_signal_output(tr_bpsk, "Tr BPSK")
-base_signal_output(akf_tr_bpsk, "AKF Tr BPSK")
+
+plt.figure(figsize=(8,8))
+plt.plot(np.abs(akf_tr_bpsk), label="AKF")
 
 
 
