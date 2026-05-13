@@ -64,7 +64,7 @@ n_symb = white_noise(conv_symb, SNR)
 rec_symb = np.convolve(n_symb, h[0:3], mode="same")
 tr_bpsk = modulator("BPSK", tr_central)
 akf_tr_bpsk = np.correlate(tr_bpsk, tr_bpsk, mode="same")
-r = np.convolve(tr_bpsk, h, mode="same")
+r = white_noise(np.convolve(tr_bpsk, h, mode="same"), SNR)
 M = convolution_matrix(tr_bpsk, len(h), mode="same")
 hLS = inv(np.conj(M.T) @ M) @ np.conj(M.T) @ r
 
